@@ -143,9 +143,9 @@ class NetworkCIFAR(nn.Module):
     self.global_pooling = nn.AdaptiveAvgPool2d(1)
     self.classifier = nn.Linear(C_prev, num_classes)
 
-  def forward(self, input):
+  def forward(self, inp):
     logits_aux = None
-    s0 = s1 = self.stem(input)
+    s0 = s1 = self.stem(inp)
     for i, cell in enumerate(self.cells):
       s0, s1 = s1, cell(s0, s1, self.drop_path_prob)
       if i == 2*self._layers//3:
@@ -199,9 +199,9 @@ class NetworkImageNet(nn.Module):
     self.global_pooling = nn.AvgPool2d(7)
     self.classifier = nn.Linear(C_prev, num_classes)
 
-  def forward(self, input):
+  def forward(self, inp):
     logits_aux = None
-    s0 = self.stem0(input)
+    s0 = self.stem0(inp)
     s1 = self.stem1(s0)
     for i, cell in enumerate(self.cells):
       s0, s1 = s1, cell(s0, s1, self.drop_path_prob)

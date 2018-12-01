@@ -100,8 +100,8 @@ class Network(nn.Module):
         x.data.copy_(y.data)
     return model_new
 
-  def forward(self, input):
-    s0 = s1 = self.stem(input)
+  def forward(self, inp):
+    s0 = s1 = self.stem(inp)
     for i, cell in enumerate(self.cells):
       if cell.reduction:
         weights = F.softmax(self.alphas_reduce, dim=-1)
@@ -112,8 +112,8 @@ class Network(nn.Module):
     logits = self.classifier(out.view(out.size(0),-1))
     return logits
 
-  def _loss(self, input, target):
-    logits = self(input)
+  def _loss(self, inp, target):
+    logits = self(inp)
     return self._criterion(logits, target) 
 
   def _initialize_alphas(self):

@@ -172,14 +172,14 @@ def train(train_queue, model, criterion, optimizer):
   top5 = utils.AvgrageMeter()
   model.train()
 
-  for step, (input, target) in enumerate(train_queue):
-    target = target.cuda(async=True)
-    input = input.cuda()
-    input = Variable(input)
+  for step, (inp, target) in enumerate(train_queue):
+    target = target.cuda(non_blocking=True)
+    inp = inp.cuda()
+    inp = Variable(inp)
     target = Variable(target)
 
     optimizer.zero_grad()
-    logits, logits_aux = model(input)
+    logits, logits_aux = model(inp)
     loss = criterion(logits, target)
     if args.auxiliary:
       loss_aux = criterion(logits_aux, target)
@@ -190,7 +190,7 @@ def train(train_queue, model, criterion, optimizer):
     optimizer.step()
 
     prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
-    n = input.size(0)
+    n = inp.size(0)
     objs.update(loss.data[0], n)
     top1.update(prec1.data[0], n)
     top5.update(prec5.data[0], n)
@@ -207,15 +207,15 @@ def infer(valid_queue, model, criterion):
   top5 = utils.AvgrageMeter()
   model.eval()
 
-  for step, (input, target) in enumerate(valid_queue):
-    input = Variable(input, volatile=True).cuda()
-    target = Variable(target, volatile=True).cuda(async=True)
+  for step, (inp, target) in enumerate(valid_queue):
+    inp = Variable(inp, volatile=True).cuda()
+    target = Variable(target, volatile=True).cuda(non_blocking=True)
 
-    logits, _ = model(input)
+    logits, _ = model(inp)
     loss = criterion(logits, target)
 
     prec1, prec5 = utils.accuracy(logits, target, topk=(1, 5))
-    n = input.size(0)
+    n = inp.size(0)
     objs.update(loss.data[0], n)
     top1.update(prec1.data[0], n)
     top5.update(prec5.data[0], n)
